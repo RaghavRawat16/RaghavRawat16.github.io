@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Costco Wholesale — DCF Valuation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap');
+
+  :root {
+    --cost-red: #E31837;
+    --cost-red-dark: #B01228;
+    --cost-red-light: #FF4D6D;
+    --cost-blue: #003087;
+    --cost-blue-mid: #1A47A0;
+    --cost-blue-light: #E8EDF8;
+    --white: #FFFFFF;
+    --off-white: #F7F8FA;
+    --grey-50: #F0F1F3;
+    --grey-100: #E2E4E8;
+    --grey-200: #C8CBD3;
+    --grey-400: #8A8F9E;
+    --grey-600: #555B6E;
+    --grey-800: #2C3044;
+    --ink: #0F1320;
+    --green: #0D7A4E;
+    --green-bg: #E8F5EE;
+    --red-bg: #FEE8EC;
+    --amber: #C47B00;
+    --amber-bg: #FFF4D6;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--off-white);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--cost-blue);
+    color: var(--white);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--cost-red);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .costco-badge {
+    background: var(--cost-red);
+    color: white;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    padding: 6px 14px;
+    border-radius: 3px;
+  }
+  .header-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.02em;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .header-stat {
+    text-align: right;
+  }
+  .header-stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+  }
+  .header-stat-value {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 15px;
+    color: white;
+  }
+  .header-stat-value.red { color: var(--cost-red-light); }
+  .header-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* ── LAYOUT ── */
+  .main {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px 32px 60px;
+  }
+
+  /* ── SCENARIO BAR ── */
+  .scenario-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    background: var(--white);
+    border: 1px solid var(--grey-100);
+    border-radius: 8px;
+    padding: 14px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .scenario-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--grey-400);
+    font-family: var(--mono);
+    margin-right: 6px;
+  }
+  .scenario-btn {
+    padding: 7px 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--grey-200);
+    background: transparent;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--grey-600);
+  }
+  .scenario-btn:hover { border-color: var(--cost-blue-mid); color: var(--cost-blue-mid); }
+  .scenario-btn.active-bear { background: var(--red-bg); border-color: var(--cost-red); color: var(--cost-red-dark); }
+  .scenario-btn.active-base { background: var(--cost-blue-light); border-color: var(--cost-blue); color: var(--cost-blue); }
+  .scenario-btn.active-bull { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .scenario-divider { flex: 1; }
+  .date-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--grey-400);
+    background: var(--grey-50);
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+
+  /* ── KPI ROW ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--white);
+    border: 1px solid var(--grey-100);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--cost-red);
+  }
+  .kpi-card.blue::before { background: var(--cost-blue); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.amber::before { background: var(--amber); }
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--grey-400);
+    font-family: var(--mono);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--grey-400);
+  }
+  .kpi-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+  .badge-red { background: var(--red-bg); color: var(--cost-red-dark); }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-blue { background: var(--cost-blue-light); color: var(--cost-blue); }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    margin-top: 32px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--grey-600);
+    font-family: var(--mono);
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--grey-100);
+  }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .col-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--grey-100);
+    border-radius: 8px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--grey-400);
+    font-family: var(--mono);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--grey-100);
+  }
+
+  /* ── REVENUE BUILD ── */
+  .rev-table { width: 100%; border-collapse: collapse; }
+  .rev-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--grey-400);
+    text-align: right;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--grey-100);
+    white-space: nowrap;
+  }
+  .rev-table th:first-child { text-align: left; }
+  .rev-table td {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 8px;
+    text-align: right;
+    border-bottom: 1px solid var(--grey-50);
+    color: var(--grey-800);
+  }
+  .rev-table td:first-child { text-align: left; color: var(--grey-600); font-size: 11px; }
+  .rev-table tr.total td { font-weight: 600; color: var(--ink); border-top: 1.5px solid var(--grey-200); background: var(--grey-50); }
+  .rev-table tr.growth td { color: var(--grey-400); font-size: 10px; }
+  .rev-table tr.forecast td { color: var(--cost-blue); }
+  .rev-table tr.section-row td { font-weight: 700; background: var(--cost-blue-light); color: var(--cost-blue); font-size: 11px; }
+
+  /* ── SCENARIO OUTPUT TABLE ── */
+  .scenario-output {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .scenario-col {
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .scenario-col.bear { background: var(--red-bg); border: 1.5px solid var(--cost-red); }
+  .scenario-col.base { background: var(--cost-blue-light); border: 1.5px solid var(--cost-blue); }
+  .scenario-col.bull { background: var(--green-bg); border: 1.5px solid var(--green); }
+  .scenario-col-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .bear .scenario-col-label { color: var(--cost-red-dark); }
+  .base .scenario-col-label { color: var(--cost-blue); }
+  .bull .scenario-col-label { color: var(--green); }
+  .scenario-col-price {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .bear .scenario-col-price { color: var(--cost-red-dark); }
+  .base .scenario-col-price { color: var(--cost-blue); }
+  .bull .scenario-col-price { color: var(--green); }
+  .scenario-col-vs {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .bear .scenario-col-vs { color: var(--cost-red); }
+  .base .scenario-col-vs { color: var(--cost-blue-mid); }
+  .bull .scenario-col-vs { color: var(--green); }
+  .scenario-col-metrics { text-align: left; }
+  .scenario-metric {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    font-size: 10px;
+    font-family: var(--mono);
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .scenario-metric-label { color: var(--grey-600); }
+  .scenario-metric-val { font-weight: 600; color: var(--ink); }
+
+  /* ── WACC TABLE ── */
+  .wacc-peers { width: 100%; border-collapse: collapse; }
+  .wacc-peers th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--grey-400);
+    text-align: right;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--grey-100);
+  }
+  .wacc-peers th:first-child { text-align: left; }
+  .wacc-peers td {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--grey-50);
+  }
+  .wacc-peers td:first-child { text-align: left; font-weight: 500; }
+  .wacc-peers tr.highlighted td { background: var(--cost-blue-light); font-weight: 600; color: var(--cost-blue); }
+  .wacc-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .wacc-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--grey-50);
+    font-size: 12px;
+  }
+  .wacc-item-label { color: var(--grey-600); }
+  .wacc-item-value { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .wacc-final {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--cost-blue);
+    color: white;
+    border-radius: 6px;
+    margin-top: 14px;
+  }
+  .wacc-final-label { font-size: 12px; font-weight: 600; opacity: 0.85; }
+  .wacc-final-value { font-family: var(--mono); font-size: 20px; font-weight: 700; }
+
+  /* ── SENSITIVITY TABLE ── */
+  .sens-wrap { overflow-x: auto; }
+  .sens-table { border-collapse: collapse; width: 100%; }
+  .sens-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--grey-400);
+    padding: 5px 10px;
+    background: var(--grey-50);
+    text-align: center;
+    border: 1px solid var(--grey-100);
+    white-space: nowrap;
+  }
+  .sens-table th.row-header { text-align: left; }
+  .sens-table td {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    text-align: center;
+    border: 1px solid var(--grey-100);
+    transition: background 0.1s;
+  }
+  .sens-table td.row-label {
+    font-weight: 600;
+    background: var(--grey-50);
+    color: var(--grey-600);
+    text-align: left;
+  }
+  .sens-table td.active-cell {
+    background: var(--cost-blue) !important;
+    color: white !important;
+    font-weight: 700;
+  }
+  .sens-table td.deep-red { background: #FECDD3; color: #991B1B; }
+  .sens-table td.light-red { background: #FEE2E2; color: #B91C1C; }
+  .sens-table td.neutral { background: #F9FAFB; color: var(--grey-800); }
+  .sens-table td.light-green { background: #D1FAE5; color: #065F46; }
+  .sens-table td.deep-green { background: #A7F3D0; color: #064E3B; }
+
+  /* ── COMPS TABLE ── */
+  .comps-table { width: 100%; border-collapse: collapse; }
+  .comps-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--grey-400);
+    text-align: right;
+    padding: 7px 12px;
+    border-bottom: 1.5px solid var(--grey-100);
+    background: var(--grey-50);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .comps-table th:first-child { text-align: left; }
+  .comps-table td {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 8px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--grey-50);
+  }
+  .comps-table td:first-child { text-align: left; font-weight: 500; }
+  .comps-table tr.costco-row td { background: var(--cost-blue-light); font-weight: 600; color: var(--cost-blue); }
+  .comps-table tr.median-row td { background: var(--amber-bg); color: var(--amber); font-weight: 600; font-size: 11px; }
+  .comps-table .premium-tag {
+    display: inline-block;
+    background: var(--cost-red);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ── FOOTBALL FIELD ── */
+  .ff-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .ff-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--grey-600);
+    width: 130px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .ff-track {
+    flex: 1;
+    position: relative;
+    height: 26px;
+    background: var(--grey-50);
+    border-radius: 4px;
+    overflow: visible;
+  }
+  .ff-bar {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+  }
+  .ff-range-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: white;
+  }
+  .ff-current {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--cost-red);
+    z-index: 10;
+  }
+  .ff-current::after {
+    content: '$971.87';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--cost-red);
+    white-space: nowrap;
+  }
+  .ff-min-label, .ff-max-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--grey-400);
+    width: 60px;
+  }
+  .ff-max-label { text-align: right; }
+
+  /* ── CAPEX BREAKDOWN ── */
+  .capex-donut-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .capex-type {
+    border-radius: 6px;
+    padding: 12px 14px;
+    border-left: 3px solid;
+  }
+  .capex-type.maint { background: var(--grey-50); border-color: var(--grey-400); }
+  .capex-type.growth { background: var(--cost-blue-light); border-color: var(--cost-blue); }
+  .capex-type.strategic { background: var(--amber-bg); border-color: var(--amber); }
+  .capex-type-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); margin-bottom: 4px; }
+  .maint .capex-type-label { color: var(--grey-600); }
+  .growth .capex-type-label { color: var(--cost-blue); }
+  .strategic .capex-type-label { color: var(--amber); }
+  .capex-type-value { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--ink); }
+  .capex-type-pct { font-family: var(--mono); font-size: 11px; color: var(--grey-400); }
+
+  /* ── EV BRIDGE ── */
+  .bridge-row {
+    display: flex;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--grey-50);
+    gap: 12px;
+  }
+  .bridge-label { flex: 1; font-size: 12px; color: var(--grey-600); }
+  .bridge-value { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink); }
+  .bridge-value.pos { color: var(--green); }
+  .bridge-value.neg { color: var(--cost-red); }
+  .bridge-final {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 2px solid var(--ink);
+    margin-top: 4px;
+  }
+  .bridge-final-label { font-size: 13px; font-weight: 700; }
+  .bridge-final-value { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--cost-blue); }
+
+  /* ── METRICS BAR ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .metric-mini {
+    background: var(--grey-50);
+    border-radius: 6px;
+    padding: 12px 14px;
+    border: 1px solid var(--grey-100);
+  }
+  .metric-mini-label { font-size: 10px; color: var(--grey-400); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .metric-mini-value { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--ink); }
+
+  /* ── INSIGHT BOX ── */
+  .insight {
+    background: linear-gradient(135deg, var(--cost-blue) 0%, var(--cost-blue-mid) 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+  .insight-header {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 8px;
+  }
+  .insight-body {
+    font-size: 13px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.9);
+  }
+  .insight-body strong { color: white; font-weight: 600; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--grey-100);
+    padding: 20px 32px;
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .footer-left { font-size: 11px; color: var(--grey-400); font-family: var(--mono); }
+  .footer-disc { font-size: 10px; color: var(--grey-400); max-width: 500px; text-align: right; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { height: 5px; background: var(--grey-100); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s; }
+
+  /* ── TOGGLE SENSITIVITY ── */
+  .sens-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .sens-toggle-btn {
+    padding: 5px 14px;
+    border-radius: 4px;
+    border: 1.5px solid var(--grey-200);
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--grey-600);
+  }
+  .sens-toggle-btn.active {
+    background: var(--cost-blue);
+    border-color: var(--cost-blue);
+    color: white;
+  }
+  .sens-panel { display: none; }
+  .sens-panel.active { display: block; }
+
+  /* Animated number */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kpi-card { animation: fadeUp 0.35s ease both; }
+  .kpi-card:nth-child(1) { animation-delay: 0.05s; }
+  .kpi-card:nth-child(2) { animation-delay: 0.1s; }
+  .kpi-card:nth-child(3) { animation-delay: 0.15s; }
+  .kpi-card:nth-child(4) { animation-delay: 0.2s; }
+  .kpi-card:nth-child(5) { animation-delay: 0.25s; }
+  .kpi-card:nth-child(6) { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="costco-badge">COST</div>
+      <div>
+        <div style="font-size:16px;font-weight:700;color:white;letter-spacing:0.01em;">Costco Wholesale Corporation</div>
+        <div class="header-title">Discounted Cash Flow Valuation · FY2016–2035E (August FYE)</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-stat">
+        <div class="header-stat-label">Current Price</div>
+        <div class="header-stat-value">$971.87</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-label">DCF (Base)</div>
+        <div class="header-stat-value red">$679.45</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-label">Premium to DCF</div>
+        <div class="header-stat-value red">−30.1%</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-label">WACC</div>
+        <div class="header-stat-value">7.58%</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-label">TGR</div>
+        <div class="header-stat-value">3.00%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SCENARIO BAR -->
+  <div class="scenario-bar">
+    <span class="scenario-label">Scenario</span>
+    <button class="scenario-btn" id="btn-bear" onclick="setScenario('bear')">🐻 Bear</button>
+    <button class="scenario-btn active-base" id="btn-base" onclick="setScenario('base')">⚖ Base</button>
+    <button class="scenario-btn" id="btn-bull" onclick="setScenario('bull')">🐂 Bull</button>
+    <div class="scenario-divider"></div>
+    <div class="date-badge">Model Date: 18 Jun 2026 · FY2025 Actuals Included</div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Implied Price</div>
+      <div class="kpi-value" id="kpi-price">$679</div>
+      <div class="kpi-sub" id="kpi-vs">vs $971.87 market</div>
+      <div class="kpi-badge badge-red" id="kpi-pct">−30.1% to fair value</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Enterprise Value</div>
+      <div class="kpi-value" id="kpi-ev">$296B</div>
+      <div class="kpi-sub">DCF-derived EV</div>
+      <div class="kpi-badge badge-blue">EV/EBITDA: 23.1x</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Revenue CAGR</div>
+      <div class="kpi-value" id="kpi-cagr">6.1%</div>
+      <div class="kpi-sub">FY2025–2035E</div>
+      <div class="kpi-badge badge-blue">Warehouse-driven</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">FY2025 EBITDA</div>
+      <div class="kpi-value">$12.8B</div>
+      <div class="kpi-sub">4.65% margin</div>
+      <div class="kpi-badge badge-green">↑ from 4.53% (2024)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Membership Rev</div>
+      <div class="kpi-value">$5.3B</div>
+      <div class="kpi-sub">FY2025 · 81% renewal</div>
+      <div class="kpi-badge badge-amber">+10.3% YoY</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">ROIC</div>
+      <div class="kpi-value">12.4%</div>
+      <div class="kpi-sub">FY2025 output</div>
+      <div class="kpi-badge badge-amber">vs 7.58% WACC</div>
+    </div>
+  </div>
+
+  <!-- SCENARIO OUTPUTS -->
+  <div class="section-header">
+    <span class="section-title">Scenario Analysis</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="scenario-output">
+    <div class="scenario-col bear">
+      <div class="scenario-col-label">Bear Case</div>
+      <div class="scenario-col-price">$573.77</div>
+      <div class="scenario-col-vs">−40.96% vs market</div>
+      <div class="scenario-col-metrics">
+        <div class="scenario-metric"><span class="scenario-metric-label">Rev CAGR</span><span class="scenario-metric-val">5.66%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">EBIT Margin (Terminal)</span><span class="scenario-metric-val">3.55%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">Implied EV</span><span class="scenario-metric-val">$249.2B</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">TGR</span><span class="scenario-metric-val">3.0%</span></div>
+      </div>
+    </div>
+    <div class="scenario-col base">
+      <div class="scenario-col-label">Base Case</div>
+      <div class="scenario-col-price">$679.45</div>
+      <div class="scenario-col-vs">−30.09% vs market</div>
+      <div class="scenario-col-metrics">
+        <div class="scenario-metric"><span class="scenario-metric-label">Rev CAGR</span><span class="scenario-metric-val">6.06%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">EBIT Margin (Terminal)</span><span class="scenario-metric-val">3.84%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">Implied EV</span><span class="scenario-metric-val">$296.2B</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">TGR</span><span class="scenario-metric-val">3.0%</span></div>
+      </div>
+    </div>
+    <div class="scenario-col bull">
+      <div class="scenario-col-label">Bull Case</div>
+      <div class="scenario-col-price">$780.63</div>
+      <div class="scenario-col-vs">−19.68% vs market</div>
+      <div class="scenario-col-metrics">
+        <div class="scenario-metric"><span class="scenario-metric-label">Rev CAGR</span><span class="scenario-metric-val">6.55%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">EBIT Margin (Terminal)</span><span class="scenario-metric-val">4.13%</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">Implied EV</span><span class="scenario-metric-val">$341.2B</span></div>
+        <div class="scenario-metric"><span class="scenario-metric-label">TGR</span><span class="scenario-metric-val">3.0%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE BUILD + CAPEX -->
+  <div class="section-header">
+    <span class="section-title">Revenue Architecture</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="col-2-1">
+    <div class="card">
+      <div class="card-title">Warehouse-Driven Revenue Build (US$M)</div>
+      <table class="rev-table">
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>FY2021</th>
+            <th>FY2022</th>
+            <th>FY2023</th>
+            <th>FY2024</th>
+            <th>FY2025A</th>
+            <th>FY2026E</th>
+            <th>FY2027E</th>
+            <th>FY2030E</th>
+            <th>FY2035E</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-row">
+            <td colspan="10">NET SALES — Warehouse Model</td>
+          </tr>
+          <tr>
+            <td>Warehouse Count</td>
+            <td>815</td><td>838</td><td>861</td><td>890</td><td>914</td>
+            <td class="forecast">944</td><td class="forecast">974</td><td class="forecast">1,085</td><td class="forecast">1,197</td>
+          </tr>
+          <tr>
+            <td>Warehouses Added</td>
+            <td>20</td><td>23</td><td>23</td><td>29</td><td>24</td>
+            <td class="forecast">30</td><td class="forecast">30</td><td class="forecast">28</td><td class="forecast">28</td>
+          </tr>
+          <tr>
+            <td>Avg Sales / Warehouse ($M)</td>
+            <td>238.6</td><td>269.5</td><td>279.8</td><td>285.1</td><td>299.2</td>
+            <td class="forecast">316.9</td><td class="forecast">334.1</td><td class="forecast">393.1</td><td class="forecast">449.4</td>
+          </tr>
+          <tr>
+            <td>% Growth / Warehouse</td>
+            <td>15.3%</td><td>13.0%</td><td>3.8%</td><td>1.9%</td><td>5.0%</td>
+            <td class="forecast">5.9%</td><td class="forecast">5.4%</td><td class="forecast">3.4%</td><td class="forecast">3.4%</td>
+          </tr>
+          <tr class="total">
+            <td>Total Net Sales</td>
+            <td>$192,052</td><td>$222,730</td><td>$237,710</td><td>$249,625</td><td>$269,912</td>
+            <td class="forecast">$299,173</td><td class="forecast">$325,377</td><td class="forecast">$426,601</td><td class="forecast">$537,978</td>
+          </tr>
+          <tr class="growth">
+            <td>% Growth</td>
+            <td>17.7%</td><td>16.0%</td><td>6.7%</td><td>5.0%</td><td>8.1%</td>
+            <td class="forecast" style="color:#003087">10.8%</td><td class="forecast" style="color:#003087">8.8%</td><td class="forecast" style="color:#003087">6.1%</td><td class="forecast" style="color:#003087">5.9%</td>
+          </tr>
+          <tr class="section-row">
+            <td colspan="10">MEMBERSHIP FEES — Member × Average Fee</td>
+          </tr>
+          <tr>
+            <td>Total Members (M)</td>
+            <td>61.7</td><td>65.8</td><td>71.0</td><td>76.2</td><td>81.0</td>
+            <td class="forecast">86.3</td><td class="forecast">91.9</td><td class="forecast">114.9</td><td class="forecast">142.3</td>
+          </tr>
+          <tr>
+            <td>Member Growth %</td>
+            <td>6.2%</td><td>6.6%</td><td>7.9%</td><td>7.3%</td><td>6.3%</td>
+            <td class="forecast">6.5%</td><td class="forecast">6.5%</td><td class="forecast">5.5%</td><td class="forecast">5.5%</td>
+          </tr>
+          <tr>
+            <td>Avg Fee / Member ($)</td>
+            <td>$62.84</td><td>$64.19</td><td>$64.51</td><td>$63.36</td><td>$65.86</td>
+            <td class="forecast">$70.86</td><td class="forecast">$74.36</td><td class="forecast">$81.25</td><td class="forecast">$82.25</td>
+          </tr>
+          <tr class="total">
+            <td>Total Membership Fees</td>
+            <td>$3,877</td><td>$4,224</td><td>$4,580</td><td>$4,828</td><td>$5,323</td>
+            <td class="forecast">$6,113</td><td class="forecast">$6,832</td><td class="forecast">$9,335</td><td class="forecast">$11,707</td>
+          </tr>
+          <tr class="growth">
+            <td>% Growth</td>
+            <td>9.5%</td><td>9.0%</td><td>8.4%</td><td>5.4%</td><td>10.3%</td>
+            <td class="forecast" style="color:#003087">14.8%</td><td class="forecast" style="color:#003087">11.8%</td><td class="forecast" style="color:#003087">7.1%</td><td class="forecast" style="color:#003087">5.5%</td>
+          </tr>
+          <tr class="total" style="background:#E8EDF8">
+            <td style="color:#003087;font-weight:700">TOTAL REVENUE</td>
+            <td>$195,929</td><td>$226,954</td><td>$242,290</td><td>$254,453</td><td>$275,235</td>
+            <td class="forecast">$305,285</td><td class="forecast">$332,209</td><td class="forecast">$435,936</td><td class="forecast">$549,685</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-title">Income Statement Bridge (FY2025A)</div>
+        <div class="bridge-row"><div class="bridge-label">Total Revenue</div><div class="bridge-value">$275,235M</div></div>
+        <div class="bridge-row"><div class="bridge-label">(-) COGS</div><div class="bridge-value neg">($239,886M)</div></div>
+        <div class="bridge-row"><div class="bridge-label">Gross Profit</div><div class="bridge-value">$35,349M <span style="color:var(--grey-400);font-size:10px">13.1% margin</span></div></div>
+        <div class="bridge-row"><div class="bridge-label">(-) OpEx</div><div class="bridge-value neg">($24,966M)</div></div>
+        <div class="bridge-row"><div class="bridge-label">EBIT</div><div class="bridge-value">$10,383M <span style="color:var(--grey-400);font-size:10px">3.77%</span></div></div>
+        <div class="bridge-row"><div class="bridge-label">(+) D&A</div><div class="bridge-value pos">$2,426M</div></div>
+        <div class="bridge-row" style="border-bottom:2px solid var(--ink)"><div class="bridge-label">EBITDA</div><div class="bridge-value">$12,809M <span style="color:var(--grey-400);font-size:10px">4.65%</span></div></div>
+        <div class="bridge-row"><div class="bridge-label">(+) Interest Income</div><div class="bridge-value pos">$589M</div></div>
+        <div class="bridge-row"><div class="bridge-label">(-) Interest Expense</div><div class="bridge-value neg">($154M)</div></div>
+        <div class="bridge-row"><div class="bridge-label">(-) Taxes (25.1%)</div><div class="bridge-value neg">($2,719M)</div></div>
+        <div class="bridge-final">
+          <div class="bridge-final-label">Net Income</div>
+          <div class="bridge-final-value">$8,099M</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">CapEx Architecture (FY2025A: $5,498M)</div>
+        <div class="capex-donut-row">
+          <div class="capex-type maint">
+            <div class="capex-type-label">Maintenance</div>
+            <div class="capex-type-value">$2,177M</div>
+            <div class="capex-type-pct">39.6% of total</div>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:39.6%;background:var(--grey-400)"></div></div>
+          </div>
+          <div class="capex-type growth">
+            <div class="capex-type-label">Growth</div>
+            <div class="capex-type-value">$1,065M</div>
+            <div class="capex-type-pct">19.4% of total</div>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:19.4%;background:var(--cost-blue)"></div></div>
+          </div>
+          <div class="capex-type strategic">
+            <div class="capex-type-label">Strategic & IT</div>
+            <div class="capex-type-value">$2,256M</div>
+            <div class="capex-type-pct">41.0% of total</div>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:41%;background:var(--amber)"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--grey-400);font-family:var(--mono);">Strategic &amp; IT CapEx projected at 8% annual growth through FY2035E — reflects e-commerce infrastructure and tech stack investment.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WACC + DCF BRIDGE -->
+  <div class="section-header">
+    <span class="section-title">WACC Construction & DCF Output</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">WACC Derivation — Peer Unlevered Beta</div>
+      <table class="wacc-peers">
+        <thead>
+          <tr>
+            <th>Peer</th>
+            <th>Debt/Capital</th>
+            <th>Tax Rate</th>
+            <th>Levered β</th>
+            <th>Unlevered β</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Costco</td>
+            <td>1.86%</td><td>25.0%</td><td>0.87</td><td>0.858</td>
+          </tr>
+          <tr>
+            <td>Walmart</td>
+            <td>3.96%</td><td>25.0%</td><td>0.60</td><td>0.582</td>
+          </tr>
+          <tr>
+            <td>Target</td>
+            <td>20.40%</td><td>25.0%</td><td>0.99</td><td>0.830</td>
+          </tr>
+          <tr>
+            <td>Amazon</td>
+            <td>2.42%</td><td>25.0%</td><td>1.44</td><td>1.414</td>
+          </tr>
+          <tr class="highlighted">
+            <td>Median</td>
+            <td>3.19%</td><td>25.0%</td><td>0.795</td><td>0.706</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="wacc-block">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--grey-400);font-family:var(--mono);margin-bottom:8px">Cost of Equity</div>
+          <div class="wacc-item"><span class="wacc-item-label">Risk-Free Rate</span><span class="wacc-item-value">4.54%</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">Equity Risk Premium</span><span class="wacc-item-value">4.46%</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">Levered Beta (re-levered)</span><span class="wacc-item-value">0.724</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">Cost of Equity</span><span class="wacc-item-value">7.77%</span></div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--grey-400);font-family:var(--mono);margin-bottom:8px">Cost of Debt</div>
+          <div class="wacc-item"><span class="wacc-item-label">Pre-Tax Cost of Debt</span><span class="wacc-item-value">2.70%</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">Tax Rate</span><span class="wacc-item-value">25.0%</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">After-Tax Cost of Debt</span><span class="wacc-item-value">2.02%</span></div>
+          <div class="wacc-item"><span class="wacc-item-label">Debt Weight</span><span class="wacc-item-value">3.19%</span></div>
+        </div>
+      </div>
+      <div class="wacc-final">
+        <div class="wacc-final-label">WACC (Equity-Weighted)</div>
+        <div class="wacc-final-value">7.58%</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">EV → Equity Value Bridge</div>
+      <div class="bridge-row"><div class="bridge-label">Σ PV of Unlevered FCF (FY26–35E)</div><div class="bridge-value">$70,923M</div></div>
+      <div class="bridge-row"><div class="bridge-label">PV of Terminal Value (75% weight)</div><div class="bridge-value">$225,308M</div></div>
+      <div class="bridge-row" style="border-bottom:1.5px solid var(--grey-200);padding-bottom:10px"><div class="bridge-label" style="font-weight:700">Enterprise Value</div><div class="bridge-value" style="font-size:14px">$296,231M</div></div>
+      <div style="margin:10px 0;font-size:10px;color:var(--grey-400);font-family:var(--mono)">TV as % of EV: 76.1% · TV/EBITDA check: 8.7x ✓</div>
+      <div class="bridge-row"><div class="bridge-label">(+) Cash</div><div class="bridge-value pos">$14,161M</div></div>
+      <div class="bridge-row"><div class="bridge-label">(-) Total Debt</div><div class="bridge-value neg">($8,173M)</div></div>
+      <div class="bridge-row"><div class="bridge-label">Net Debt Position</div><div class="bridge-value pos">Net Cash: $5,988M</div></div>
+      <div class="bridge-final">
+        <div class="bridge-final-label">Equity Value</div>
+        <div class="bridge-final-value">$302,219M</div>
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:var(--cost-blue);color:white;border-radius:7px;padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:11px;opacity:0.7;margin-bottom:4px">Shares Outstanding</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700">444.8M</div>
+        </div>
+        <div style="background:var(--cost-blue-light);border:1.5px solid var(--cost-blue);border-radius:7px;padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--cost-blue);opacity:0.8;margin-bottom:4px">Implied Price / Share</div>
+          <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--cost-blue)">$679.45</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:var(--red-bg);border:1px solid var(--cost-red);border-radius:6px;padding:10px 14px;">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--cost-red-dark);margin-bottom:2px">MARKET PREMIUM ANALYSIS</div>
+        <div style="font-size:11px;color:var(--grey-800)">Market trades at <strong>$971.87</strong>, a <strong>43.0% premium</strong> to DCF base case ($679.45). This premium embeds Costco's unique moat: captive membership cash flows, nearly 93% renewal rates, and a flight-to-value consumer shift. At market price, implied EV/EBITDA is <strong>33.3x vs peer median 17.7x</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SENSITIVITY TABLES -->
+  <div class="section-header">
+    <span class="section-title">Sensitivity Analysis</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Toggle Sensitivity Table</div>
+    <div class="sens-toggle">
+      <button class="sens-toggle-btn active" onclick="showSens('wacc-tgr', this)">WACC / TGR</button>
+      <button class="sens-toggle-btn" onclick="showSens('wacc-ebit', this)">WACC / EBIT Margin</button>
+    </div>
+
+    <div class="sens-panel active" id="sens-wacc-tgr">
+      <div style="font-size:11px;color:var(--grey-400);font-family:var(--mono);margin-bottom:10px">Implied Share Price ($) · WACC (cols) vs Terminal Growth Rate (rows)</div>
+      <div class="sens-wrap">
+        <table class="sens-table">
+          <thead>
+            <tr>
+              <th class="row-header">TGR \ WACC</th>
+              <th>9.58%</th><th>9.08%</th><th>8.58%</th><th>8.08%</th>
+              <th style="background:#DBEAFE;color:#1E3A8A;font-weight:700">7.58%</th>
+              <th>7.08%</th><th>6.58%</th><th>6.08%</th><th>5.58%</th>
+            </tr>
+          </thead>
+          <tbody id="sens-tgr-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sens-panel" id="sens-wacc-ebit">
+      <div style="font-size:11px;color:var(--grey-400);font-family:var(--mono);margin-bottom:10px">Note: EBIT Margin sensitivity reflects relative ranges around base case EBIT trajectory</div>
+      <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:6px;padding:12px;font-size:12px;color:var(--grey-800)">
+        The model's EBIT margin is a function of Gross Margin compression from mix shift (lower-margin e-commerce growing faster than in-warehouse) offset by OpEx leverage as fixed SG&A is spread over a larger revenue base. Terminal EBIT margin of <strong>3.84%</strong> is deliberately conservative vs current 3.77%, reflecting modest improvement from warehouse productivity rather than an aggressive margin re-rating.
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPS + FOOTBALL FIELD -->
+  <div class="section-header">
+    <span class="section-title">Comparable Company Valuation & Football Field</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">EV/EBITDA Comps Table</div>
+      <table class="comps-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Ticker</th>
+            <th>Mkt Cap ($M)</th>
+            <th>EV ($M)</th>
+            <th>EBITDA ($M)</th>
+            <th>EV/EBITDA</th>
+            <th>P/E</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="costco-row">
+            <td>Costco <span class="premium-tag">PREMIUM</span></td>
+            <td>COST</td><td>$432,288</td><td>$426,300</td><td>$12,809</td>
+            <td>33.3x</td><td>53.4x</td>
+          </tr>
+          <tr>
+            <td>Walmart</td>
+            <td>WMT</td><td>$953,655</td><td>$983,942</td><td>$44,028</td>
+            <td>22.3x</td><td>43.6x</td>
+          </tr>
+          <tr>
+            <td>Target</td>
+            <td>TGT</td><td>$55,892</td><td>$64,730</td><td>$8,251</td>
+            <td>7.8x</td><td>15.1x</td>
+          </tr>
+          <tr>
+            <td>Amazon</td>
+            <td>AMZN</td><td>$2,643,845</td><td>$2,586,464</td><td>$145,731</td>
+            <td>17.7x</td><td>34.0x</td>
+          </tr>
+          <tr class="median-row">
+            <td>Peer Median</td>
+            <td>—</td><td>—</td><td>—</td><td>—</td>
+            <td>17.7x</td><td>34.0x</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--grey-400);font-family:var(--mono);margin-bottom:10px">Implied Price by Methodology</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--grey-50);border-radius:6px;padding:12px">
+            <div style="font-size:10px;color:var(--grey-400);font-family:var(--mono)">PEER MEDIAN EV/EBITDA</div>
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--cost-red)">$497.64</div>
+            <div style="font-size:10px;color:var(--grey-400)">−48.8% vs market</div>
+          </div>
+          <div style="background:var(--grey-50);border-radius:6px;padding:12px">
+            <div style="font-size:10px;color:var(--grey-400);font-family:var(--mono)">HISTORICAL COST MULTIPLE (32x)</div>
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--cost-blue)">$908.05</div>
+            <div style="font-size:10px;color:var(--grey-400)">−6.6% vs market</div>
+          </div>
+          <div style="background:var(--grey-50);border-radius:6px;padding:12px">
+            <div style="font-size:10px;color:var(--grey-400);font-family:var(--mono)">PREMIUM MULTIPLE (26.6x)</div>
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">$753.19</div>
+            <div style="font-size:10px;color:var(--grey-400)">−22.5% vs market</div>
+          </div>
+          <div style="background:var(--grey-50);border-radius:6px;padding:12px">
+            <div style="font-size:10px;color:var(--grey-400);font-family:var(--mono)">P/E METHOD</div>
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)">$619.80</div>
+            <div style="font-size:10px;color:var(--grey-400)">−36.2% vs market</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Football Field — Implied Price Range ($)</div>
+      <div style="margin-top:8px;margin-bottom:24px;font-size:11px;color:var(--grey-400);font-family:var(--mono)">All methods anchored at $300 min / $1,100 max scale</div>
+
+      <div id="football-field"></div>
+
+      <div style="margin-top:20px">
+        <div class="metrics-row">
+          <div class="metric-mini">
+            <div class="metric-mini-label">Net Debt / EBITDA</div>
+            <div class="metric-mini-value" style="color:var(--green)">0.47x</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-label">Interest Coverage</div>
+            <div class="metric-mini-value" style="color:var(--green)">67.4x</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-label">FCF Yield (Mkt)</div>
+            <div class="metric-mini-value">1.44%</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-label">FCF Yield (DCF)</div>
+            <div class="metric-mini-value" style="color:var(--cost-blue)">2.06%</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-label">ROIC vs WACC</div>
+            <div class="metric-mini-value" style="color:var(--green)">+4.8pp</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHT BOX -->
+  <div class="insight">
+    <div class="insight-header">Analyst Note — Why Every Valuation Method Shows a 20–50% Discount to Market</div>
+    <div class="insight-body">
+      Costco's market price reflects a structural premium that no DCF or comps methodology can fully capture using standard mechanics. Three factors account for the persistent gap. First, <strong>membership fee economics are not EBITDA</strong> — the $5.3B in annual fee revenue is almost entirely recurring, near-100% margin, and commands a multiple closer to a SaaS business (~25-30x) than a retailer (~15x). Blending this into consolidated EBITDA systematically understates the value of the fee stream. Second, <strong>Costco's negative working capital flywheel</strong> (NWC averaging −$14B to −$35B across the forecast) means the business is structurally self-funding; suppliers effectively lend capital to Costco at zero cost, a feature the DCF partially captures via NWC changes but that the market prices as a quasi-permanent structural advantage. Third, the <strong>warehouse pipeline optionality</strong> (28 new clubs per year at each adding $300M+ in annual revenue) carries embedded option value not reflected in a static 10-year DCF. The <strong>bull case implies $780.63, still 20% below market</strong>, suggesting the market has priced in either significantly faster member growth, a material fee hike above model assumptions (next hike cycle likely FY2027–28 to $90+), or assigns a scarcity premium to the Costco membership model that falls outside standard DCF territory.
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">COSTCO WHOLESALE CORP (COST) · DCF MODEL · RAGHAV RAWAT · 18 JUN 2026</div>
+  <div class="footer-disc">Model outputs are for analytical and portfolio purposes only. Not investment advice. All figures in USD millions unless otherwise noted. Actuals sourced from SEC EDGAR filings; market data as of model date.</div>
+</div>
+
+<script>
+// ─── SCENARIO DATA ───
+const scenarios = {
+  bear: {
+    price: '$573.77', pct: '−40.96% vs market', ev: '$249B', cagr: '5.66%',
+    badgeClass: 'badge-red', pctClass: 'badge-red'
+  },
+  base: {
+    price: '$679.45', pct: '−30.09% vs market', ev: '$296B', cagr: '6.06%',
+    badgeClass: 'badge-blue', pctClass: 'badge-red'
+  },
+  bull: {
+    price: '$780.63', pct: '−19.68% vs market', ev: '$341B', cagr: '6.55%',
+    badgeClass: 'badge-green', pctClass: 'badge-amber'
+  }
+};
+
+function setScenario(s) {
+  ['bear','base','bull'].forEach(x => {
+    document.getElementById('btn-'+x).className = 'scenario-btn';
+  });
+  const cls = s === 'bear' ? 'active-bear' : s === 'base' ? 'active-base' : 'active-bull';
+  document.getElementById('btn-'+s).classList.add(cls);
+
+  const d = scenarios[s];
+  document.getElementById('kpi-price').textContent = d.price;
+  document.getElementById('kpi-ev').textContent = d.ev;
+  document.getElementById('kpi-cagr').textContent = d.cagr;
+}
+
+// ─── SENSITIVITY TABLE ───
+const tgrRows = [0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045];
+const waccCols = [0.0958, 0.0908, 0.0858, 0.0808, 0.0758, 0.0708, 0.0658, 0.0608, 0.0558];
+const sensData = {
+  0.015: [494.93, 519.77, 547.26, 577.94, 612.49, 651.86, 697.38, 750.89, 815.19],
+  0.02:  [503.74, 530.19, 559.69, 592.93, 630.81, 674.59, 726.08, 787.94, 864.33],
+  0.025: [513.79, 542.18, 574.16, 610.61, 652.74, 702.28, 761.81, 835.33, 929.41],
+  0.03:  [525.37, 556.15, 591.23, 631.77, 679.45, 736.74, 807.51, 898.07, 1019.66],
+  0.035: [538.86, 572.62, 611.65, 657.54, 712.70, 780.83, 868.02, 985.10, 1153.22],
+  0.04:  [554.76, 592.33, 636.52, 689.63, 755.23, 839.20, 951.96, 1113.89, 1371.08],
+  0.045: [573.79, 616.34, 667.48, 730.66, 811.54, 920.16, 1076.16, 1323.97, 1789.88]
+};
+
+function buildSensTable() {
+  const tbody = document.getElementById('sens-tgr-body');
+  const market = 971.87;
+  const baseTGR = 0.03, baseWACC = 0.0758;
+  tgrRows.forEach(tgr => {
+    const tr = document.createElement('tr');
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'row-label';
+    tdLabel.textContent = (tgr*100).toFixed(1)+'%';
+    tr.appendChild(tdLabel);
+    (sensData[tgr] || []).forEach((val, ci) => {
+      const td = document.createElement('td');
+      const wacc = waccCols[ci];
+      const isActive = Math.abs(tgr - baseTGR) < 0.001 && Math.abs(wacc - baseWACC) < 0.001;
+      if (isActive) {
+        td.className = 'active-cell';
+      } else {
+        const pct = (val - market) / market;
+        if (pct < -0.35) td.className = 'deep-red';
+        else if (pct < -0.20) td.className = 'light-red';
+        else if (pct < 0.05) td.className = 'neutral';
+        else if (pct < 0.15) td.className = 'light-green';
+        else td.className = 'deep-green';
+      }
+      td.textContent = '$'+val.toFixed(0);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+buildSensTable();
+
+// ─── SENSITIVITY TOGGLE ───
+function showSens(id, btn) {
+  document.querySelectorAll('.sens-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sens-toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sens-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─── FOOTBALL FIELD ───
+const ffData = [
+  { label: 'DCF (Bear–Bull)', low: 573.77, high: 780.63, color: '#003087' },
+  { label: 'EV/EBITDA Comps', low: 497.64, high: 908.05, color: '#E31837' },
+  { label: 'P/E Comps', low: 801.16, high: 983.24, color: '#0D7A4E' },
+  { label: '52-Week H/L', low: 852.10, high: 1094.32, color: '#C47B00' },
+];
+const ffMin = 300, ffMax = 1150, ffCurrent = 971.87;
+
+function buildFootballField() {
+  const container = document.getElementById('football-field');
+  const scale = (v) => ((v - ffMin) / (ffMax - ffMin)) * 100;
+
+  ffData.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'ff-row';
+
+    const label = document.createElement('div');
+    label.className = 'ff-label';
+    label.textContent = d.label;
+    row.appendChild(label);
+
+    const minLabel = document.createElement('div');
+    minLabel.className = 'ff-min-label';
+    minLabel.textContent = '$'+d.low.toFixed(0);
+    row.appendChild(minLabel);
+
+    const track = document.createElement('div');
+    track.className = 'ff-track';
+
+    const bar = document.createElement('div');
+    bar.className = 'ff-bar';
+    bar.style.left = scale(d.low) + '%';
+    bar.style.width = (scale(d.high) - scale(d.low)) + '%';
+    bar.style.background = d.color;
+    bar.style.opacity = '0.85';
+    track.appendChild(bar);
+
+    // Current price line
+    const curr = document.createElement('div');
+    curr.className = 'ff-current';
+    curr.style.left = scale(ffCurrent) + '%';
+    track.appendChild(curr);
+
+    row.appendChild(track);
+
+    const maxLabel = document.createElement('div');
+    maxLabel.className = 'ff-max-label';
+    maxLabel.textContent = '$'+d.high.toFixed(0);
+    row.appendChild(maxLabel);
+
+    container.appendChild(row);
+  });
+}
+buildFootballField();
+</script>
+</body>
+</html>
